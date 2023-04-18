@@ -8,8 +8,11 @@ ParameterList* copyParameterNode (ParameterList *node) {
     if (!node) return NULL;
 
     ParameterList *new = malloc (sizeof (ParameterList));
-    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); strcpy(new->name, node->name);
+    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); 
+    strcpy(new->name, node->name);
+    
     new->type = node->type;
+    
     return new;
 }
 
@@ -29,10 +32,13 @@ FieldList* copyFieldNode (FieldList *node) {
     if (!node) return NULL;
 
     FieldList *new = malloc (sizeof (FieldList));
-    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); strcpy(new->name, node->name);
+    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); 
+    strcpy(new->name, node->name);
+    
     new->fieldIndex = node->fieldIndex;
     new->type = node->type;
     new->classtype = node->classtype;
+    
     return new;
 }
 
@@ -40,12 +46,15 @@ MethodList* copyMethodNode (MethodList *node) {
     if (!node) return NULL;
 
     MethodList *new = malloc (sizeof (MethodList));
-    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); strcpy(new->name, node->name);
+    new->name = (char*) malloc (sizeof(char) * strlen(node->name)); 
+    strcpy(new->name, node->name);
+    
     new->methodIndex = node->methodIndex;
     new->funcLabel = node->funcLabel;
     new->declStatus = REDEFINED;
     new->param = copyParameterList (node->param);
     new->type = node->type;
+    
     return new;
 }
 
@@ -81,8 +90,7 @@ ClassTable *CT, *currentClass;
 FieldList* createMemberNode (char* name, int index, TypeTable* type, ClassTable *classType) {
     FieldList* temp = (FieldList*) malloc (sizeof (FieldList));
     
-    temp->name = (char*) malloc (sizeof (char) * strlen (name));
-    strcpy (temp->name, name);
+    temp->name = (char*) malloc (sizeof (char) * strlen (name)); strcpy (temp->name, name);
 
     temp->fieldIndex = index, temp->type = type, temp->classtype = classType, temp->next = NULL;
     return temp;
@@ -91,8 +99,7 @@ FieldList* createMemberNode (char* name, int index, TypeTable* type, ClassTable 
 MethodList* createMethodNode (char* name, int index, TypeTable *type, ParameterList *paramlst) {
     MethodList* temp = (MethodList*) malloc (sizeof (MethodList));
     
-    temp->name = (char*) malloc (sizeof (char) * strlen (name));
-    strcpy (temp->name, name);
+    temp->name = (char*) malloc (sizeof (char) * strlen (name)); strcpy (temp->name, name);
 
     temp->methodIndex = index, temp->type = type, temp->funcLabel = getNewFunction (), temp->declStatus = UNDEFINED;
     temp->param = paramlst, temp->next = NULL;
@@ -120,9 +127,6 @@ ClassTable* getClassNode (char *name) {
     }
 
     return NULL;
-
-    // printf ("ERROR : undeclared class used : %s\n", name);
-    // exit (1);
 }
 
 MethodList* getMethod (char *name) {

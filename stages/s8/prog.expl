@@ -1,155 +1,68 @@
 class
-    A
-    {
+    A {
         decl
-            int f0();
-            int f1();
-            int f(int x, int y);
+			int temp;
+            int f0(int x);
         enddecl
-        int f0() 
-        {
+        int f0 (int x) {
             begin
-                write("In class A f0");
-                return 1;
-            end
-        }
-        int f1() 
-        {
-            begin
-                write("In class A f1");
-                return 1;
-            end
-        }
-        int f(int x, int y)
-        {
-            begin
-                return x;
+				if (x > 0) then
+					self.temp = self.f0 (x-1);
+				endif;
+
+				write("In class A f0");
+
+				return 1;
             end
         }
     }
-    B extends A
-    {
+    B {
         decl
-            int f0();
-            int f2();
-            int f(int x, int y);
+			int temp;
+			A a_obj;
+			int f1 ();
         enddecl
-        int f0()
-        {
+        int f1 () {
             begin
-                write("In class B f0");
+                write("In class B f1");
+				self.a_obj = new (A);
+				self.temp = self.a_obj.f0(3);
                 return 1;
-            end
-        }
-        int f2() 
-        {
-            begin
-                write("In class B f2");
-                return 1;
-            end
-        }
-        int f(int x, int y)
-        {
-            begin
-                return y;
             end
         }
     }
-    C extends B
-    {
+	C {
         decl
-            int f0();
-            int f2();
-            int f4();
-            int f(int x, int y);
-            int  g(int x, int y);
+			int temp;
+			B b_obj;
+			int f2 ();
         enddecl
-        int f0()
-        {
-            begin
-                write("In class C f0");
-                return 1;
-            end
-        }
-        int f2()
-        {
+        int f2 () {
             begin
                 write("In class C f2");
+				self.b_obj = new (B);
+				self.temp = self.b_obj.f1();
                 return 1;
-            end
-        }
-        int f4()
-        {
-            begin
-                write("In class C f4");
-                return 1;
-            end
-        }
-        int f(int x, int y)
-        {
-            decl
-                int val;
-            enddecl
-            begin
-                if(y == 0)then
-                    val = x;
-                else
-                    val = self.g(self.f(x-1,y-1),y-1);
-                endif;
-                
-                return val;
-            end
-        }
-
-        int g(int x, int y)
-        {
-            decl
-                int val;
-            enddecl
-            begin
-                if(y == 0)then
-                    val = x;
-                else
-                    val = self.f(self.g(x-1,y-1),y-1);
-                endif;
-                
-                return val;
             end
         }
     }
 endclass
 
 decl
-    A obj ;
-    A test_obj;
+    C obj;
 enddecl
 
-int main() 
-{
+int main() {
     decl
-        int temp,n;
-        int x,y;
+		int temp;
     enddecl
-    begin
-        temp= initialize();
-        read(n);
-        if(n < 0)then
-            obj = new(A);
-        else
-            if(n == 0)then
-                obj = new(B);
-            else
-                if(n > 0)then
-                    obj = new(C);
-                endif;
-            endif;
-        endif;
-        test_obj = obj;
+    
+	begin
+        temp = initialize();
+		
+		obj = new (C);
+		temp = obj.f2 ();
 
-        x = 10;
-        y = 12;
-
-        write(test_obj.f(x,y));
-        return 1;
+		return 1;
     end
 }

@@ -2,7 +2,7 @@
 #define codegen
 
 #include "stack.c"
-#include "tree.c"
+// #include "tree.c"
 
 #define REG_COUNT 20
 #define REG_BUSY 0

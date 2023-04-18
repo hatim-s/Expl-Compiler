@@ -7,6 +7,8 @@
 GSymtable T;
 LSymTable t;
 
+int lineNo;
+
 int getNewLocation (int size) { 
     static int loc = 4096; 
     int temp = loc; loc += size; 
@@ -155,20 +157,30 @@ int getLVariableLocation (char *variable) {
     return 0;
 }
 
-int getVariableLocation (char *variable) {
-    LSymtableNode *node = t.head;
+int getGVariableLocation (char *variable) {
+    GSymtableNode *node = T.head;
     while (node) {
         if (strcmp (node->name, variable) == 0) return node->location;
         node = node->next;
     }
 
-    GSymtableNode* current = T.head;
-    while (current) {
-        if (strcmp (current->name, variable) == 0) return current->location;
-        current = current->next;
-    }
-    
     printf ("Error: undeclared variable/function used : %s\n", variable); exit (1);
 }
+
+// int getVariableLocation (char *variable) {
+//     LSymtableNode *node = t.head;
+//     while (node) {
+//         if (strcmp (node->name, variable) == 0) return node->location;
+//         node = node->next;
+//     }
+
+//     GSymtableNode* current = T.head;
+//     while (current) {
+//         if (strcmp (current->name, variable) == 0) return current->location;
+//         current = current->next;
+//     }
+    
+//     printf ("Error: undeclared variable/function used : %s\n", variable); exit (1);
+// }
 
 #endif

@@ -1,37 +1,38 @@
 %{
-    #include "codegen.c"
-    #include "symtab.c"
     #include "type.h"
     #include "class.h"
+    #include "symtab.c"
+    #include "tree.c"
+    #include "codegen.c"
     
     int yylex(void);
     void yyerror (char const *s);
     
     extern FILE* yyin;
     extern char* yytext;
-    extern int yylineno;;
+    extern int yylineno;
 %}
 
 %union {
     struct TreeNode *node;
 };
 
-%token ENDSTMT
+%token NUM ID SID SELF INT STR NULLL MAIN RETURN EXTENDS
 %token READ WRITE ALLOC FREE INIT NEW DELETE
-%token NUM ID SID INT STR NULLL
-%token START END DECL ENDDECL TYPE ENDTYPE CLASS ENDCLASS MAIN RETURN EXTENDS SELF
+%token START END DECL ENDDECL TYPE ENDTYPE CLASS ENDCLASS 
 %token ADD SUB MUL DIV EQL LT GT EQ GE LE NE AND OR NOT 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 
 %type <node> ID NUM SELF SID
-%type <node> Program TypeDeclBlock GDeclBlock FuncDefBlock MainBlock ParamList Param ParamBlock
+
+%type <node> Program TypeDeclBlock GDeclBlock FuncDefBlock MainBlock 
 %type <node> TypeDeclBlockInit TypeDeclList TypeStmt TypeName FieldDeclList FieldDecl Type
-%type <node> GDeclList GDecl GVarList GIdentifierDecl
+%type <node> ClassDeclBlock ClassDeclList ClassDecl ClassName MethodDeclList MethodDefList MethodDecl MethodDef MemberDeclList MemberDecl
+%type <node> GDeclList GDecl GVarList GIdentifierDecl ParamList Param ParamBlock
 %type <node> FuncBody LDeclBlock LDeclList LDecl LVarList ArgsList FuncDef
 %type <node> StmtList Stmt InStmt OutStmt AssgnStmt FreeStmt DeleteStmt
 %type <node> IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
 %type <node> Expr Identifier Field FieldFunc
-%type <node> ClassDeclBlock ClassDeclList ClassDecl ClassName MethodDeclList MethodDefList MethodDecl MethodDef MemberDeclList MemberDecl
 
 %left ADD SUB
 %left MUL DIV
@@ -61,12 +62,12 @@ TypeDeclList        : TypeDeclList TypeStmt     {}
 
 TypeStmt            : TypeName '{' FieldDeclList '}'  {} ;
 
-TypeName            : ID    { addTypeEntry ($1->varname); $$ = $1; } ;
+TypeName            : ID    { addTypeEntry ($1->varname); } ;
 
 FieldDeclList       : FieldDeclList FieldDecl   {}
                     | FieldDecl                 {};
 
-FieldDecl           : Type ID ENDSTMT   { $$ = makeFieldDeclNode ($2->varname, $1->datatype, $1->classtype); addField ($$); } ;
+FieldDecl           : Type ID ';'       { $$ = makeFieldDeclNode ($2->varname, $1->datatype, $1->classtype); addField ($$); } ;
 
 Type                : INT   { $$ = makeTypeNode ("INT"); } 
                     | STR   { $$ = makeTypeNode ("STR"); } 
@@ -74,9 +75,9 @@ Type                : INT   { $$ = makeTypeNode ("INT"); }
 
 /* -------------------------------------------------------------------------------------------------------------------------------------- */
 
-ClassDeclBlock  : ClassDeclBlockInit ClassDeclList ENDCLASS      {} ;
+ClassDeclBlock      : ClassDeclBlockInit ClassDeclList ENDCLASS      {} ;
 
-ClassDeclBlockInit : CLASS                          
+ClassDeclBlockInit  : CLASS                          
                     {
                         registerInit ();
                         FILE *outfile = fopen ("code-o.xsm", "w");
@@ -84,90 +85,90 @@ ClassDeclBlockInit : CLASS
                         fclose (outfile);
                     } ;
 
-ClassDeclList   : ClassDecl ClassDeclList   {} 
-                | ClassDecl                 {};
+ClassDeclList       : ClassDecl ClassDeclList   {} 
+                    | ClassDecl                 {};
 
-ClassDecl       : ClassName '{' DECL MemberDeclList MethodDeclList ENDDECL MethodDefList '}'    {} 
-                | ClassName '{' DECL MethodDeclList ENDDECL MethodDefList '}'                   {} 
-                | ClassName '{' DECL MemberDeclList ENDDECL '}'                                 {} ;
+ClassDecl           : ClassName '{' DECL MemberDeclList MethodDeclList ENDDECL MethodDefList '}'    {} 
+                    | ClassName '{' DECL MethodDeclList ENDDECL MethodDefList '}'                   {} 
+                    | ClassName '{' DECL MemberDeclList ENDDECL '}'                                 {} ;
 
-ClassName       : ID                { initializeLTable (); addClassEntry ($1->varname, NULL); }
-                | ID EXTENDS ID     
-                { 
-                    initializeLTable (); addClassEntry ($1->varname, $3->varname);
-                    extendedClass = true;
-                } ;
+ClassName           : ID                { initializeLTable (); addClassEntry ($1->varname, NULL); }
+                    | ID EXTENDS ID     
+                    { 
+                        initializeLTable (); addClassEntry ($1->varname, $3->varname);
+                        extendedClass = true;
+                    } ;
 
-MemberDeclList  : MemberDeclList MemberDecl     {}
-                | MemberDecl                    {} ;
+MemberDeclList      : MemberDeclList MemberDecl     {}
+                    | MemberDecl                    {} ;
 
-MemberDecl      : Type ID ENDSTMT   { $$ = makeFieldDeclNode ($2->varname, $1->datatype, $1->classtype); addMember ($$); } ;
+MemberDecl          : Type ID ';'       { $$ = makeFieldDeclNode ($2->varname, $1->datatype, $1->classtype); addMember ($$); } ;
 
-MethodDeclList  : MethodDeclList MethodDecl     {} 
-                | MethodDecl                    {} ;
+MethodDeclList      : MethodDeclList MethodDecl     {} 
+                    | MethodDecl                    {} ;
 
-MethodDecl      : Type ID '(' ParamList ')' ENDSTMT     
-                { 
-                    if ($1->nodetype == CLASSTYPE_NODE) {
-                        printf ("ERROR : method : %s return type cannot be class\n", $2->varname);
-                        printf ("Line : %d\n", yylineno);
-                        exit (1);
+MethodDecl          : Type ID '(' ParamList ')' ';'         
+                    { 
+                        if ($1->nodetype == CLASSTYPE_NODE) {
+                            printf ("ERROR : method : %s return type cannot be class\n", $2->varname);
+                            printf ("Line : %d\n", yylineno);
+                            exit (1);
+                        }
+
+                        $$ = makeMethodDeclNode ($2->varname, $1->datatype, NULL, $4); 
+
+                        addMethod ($$);
+                    } ;
+
+MethodDefList       : MethodDefList MethodDef       {}
+                    | MethodDef                     {} ;
+
+MethodDef           : Type ID ParamBlock '{' LDeclBlock FuncBody '}'    
+                    { 
+                        if (matchParameters (getMethod($2->varname)->param, $3) == false) {
+                            printf ("ERROR : trying to define an undeclared method\n");
+                            printf ("Line : %d\n", yylineno);
+                            exit (1);
+                        }
+
+                        if (getMethod ($2->varname)->declStatus == DEFINED) {
+                            printf ("ERROR : method '%s' is already defined earlier.\n", $2->varname);
+                            printf ("Line : %d\n", yylineno);
+                            exit (1);
+                        }
+
+                        $$ = makeMethodDefNode ($2->varname, $1->datatype, $3, $6); 
+
+                        FILE *outfile = fopen ("code-o.xsm", "a");
+                        codeGenerator (outfile, $$);
+                        fclose (outfile);
+
+                        getMethod ($2->varname)->declStatus = DEFINED;
+                        initializeLTable ();
                     }
+                    | Type ID ParamBlock '{' FuncBody '}'    
+                    { 
+                        if (matchParameters (getMethod($2->varname)->param, $3) == false) {
+                            printf ("ERROR : trying to define an undeclared method\n");
+                            printf ("Line : %d\n", yylineno);
+                            exit (1);
+                        }
 
-                    $$ = makeMethodDeclNode ($2->varname, $1->datatype, NULL, $4); 
+                        if (getMethod ($2->varname)->declStatus == DEFINED) {
+                            printf ("ERROR : method '%s' is already defined earlier.\n", $2->varname);
+                            printf ("Line : %d\n", yylineno);
+                            exit (1);
+                        }
 
-                    addMethod ($$);
-                } ;
+                        $$ = makeMethodDefNode ($2->varname, $1->datatype, $3, $5); 
 
-MethodDefList   : MethodDefList MethodDef       {}
-                | MethodDef                     {} ;
+                        FILE *outfile = fopen ("code-o.xsm", "a");
+                        codeGenerator (outfile, $$);
+                        fclose (outfile);
 
-MethodDef       : Type ID ParamBlock '{' LDeclBlock FuncBody '}'    
-                { 
-                    if (matchParameters (getMethod($2->varname)->param, $3) == false) {
-                        printf ("ERROR : trying to define an undeclared method\n");
-                        printf ("Line : %d\n", yylineno);
-                        exit (1);
-                    }
-
-                    if (getMethod ($2->varname)->declStatus == DEFINED) {
-                        printf ("ERROR : method '%s' is already defined earlier.\n", $2->varname);
-                        printf ("Line : %d\n", yylineno);
-                        exit (1);
-                    }
-
-                    $$ = makeMethodDefNode ($2->varname, $1->datatype, $3, $6); 
-
-                    FILE *outfile = fopen ("code-o.xsm", "a");
-                    codeGenerator (outfile, $$);
-                    fclose (outfile);
-
-                    getMethod ($2->varname)->declStatus = DEFINED;
-                    initializeLTable ();
-                }
-                | Type ID ParamBlock '{' FuncBody '}'    
-                { 
-                    if (matchParameters (getMethod($2->varname)->param, $3) == false) {
-                        printf ("ERROR : trying to define an undeclared method\n");
-                        printf ("Line : %d\n", yylineno);
-                        exit (1);
-                    }
-
-                    if (getMethod ($2->varname)->declStatus == DEFINED) {
-                        printf ("ERROR : method '%s' is already defined earlier.\n", $2->varname);
-                        printf ("Line : %d\n", yylineno);
-                        exit (1);
-                    }
-
-                    $$ = makeMethodDefNode ($2->varname, $1->datatype, $3, $5); 
-
-                    FILE *outfile = fopen ("code-o.xsm", "a");
-                    codeGenerator (outfile, $$);
-                    fclose (outfile);
-
-                    getMethod ($2->varname)->declStatus = DEFINED;
-                    initializeLTable ();
-                } ;
+                        getMethod ($2->varname)->declStatus = DEFINED;
+                        initializeLTable ();
+                    } ;
 
 /* -------------------------------------------------------------------------------------------------------------------------------------- */
 
@@ -177,7 +178,7 @@ GDeclBlock      : DECL GDeclList ENDDECL        { initializeGTable (); declareGV
 GDeclList       : GDeclList GDecl               { TreeNode *current = $1; while (current->left) current = current->left; current->left = $2; $$ = $1; } 
                 | GDecl                         { $$ = $1; } ;
 
-GDecl           : Type GVarList ENDSTMT         { $$ = makeDeclarationNode ($1->datatype, $1->classtype, NULL, $2); };
+GDecl           : Type GVarList ';'             { $$ = makeDeclarationNode ($1->datatype, $1->classtype, NULL, $2); };
 
 GVarList        : GVarList ',' GIdentifierDecl  { TreeNode *current = $1; while (current->left) current = current->left; current->left = $3; $$ = $1; } 
                 | GIdentifierDecl               { $$ = $1; } ;
@@ -250,7 +251,7 @@ LDeclBlock      : DECL LDeclList ENDDECL     { declareLVariables ($2); $$ = $2; 
 LDeclList       : LDeclList LDecl   { TreeNode *current = $1; while (current->left) current = current->left; current->left = $2; $$ = $1; }
                 | LDecl             { $$ = $1; } ;
 
-LDecl           : Type LVarList ENDSTMT 
+LDecl           : Type LVarList ';'     
                 { 
                     if ($1->classtype) { printf ("ERROR : class-type variables cannot be declared locally\n"); printf ("Line : %d\n", yylineno); exit (1); }
                     $$ = makeDeclarationNode ($1->datatype, NULL, NULL, $2); 
@@ -307,33 +308,29 @@ Stmt        : OutStmt       { $$ = $1; }
             | WhileStmt     { $$ = $1; } 
             | BreakStmt     { $$ = $1; } 
             | ContinueStmt  { $$ = $1; }
-            | ReturnStmt    { $$ = $1; } ;
+            | ReturnStmt    { $$ = $1; } 
+            ;
 
-InStmt          : READ '(' Identifier ')' ENDSTMT       { $$ = makeReadNode ($3); }; 
-OutStmt         : WRITE '(' Expr ')' ENDSTMT            { $$ = makeWriteNode ($3); }
-                | WRITE '(' SID ')' ENDSTMT             { $$ = makeWriteNode ($3); } ;
+InStmt          : READ '(' Identifier ')' ';'           { $$ = makeReadNode ($3); }; 
+OutStmt         : WRITE '(' Expr ')' ';'                { $$ = makeWriteNode ($3); }
+                | WRITE '(' SID ')' ';'                 { $$ = makeWriteNode ($3); } ;
 
-/* IDSeq           : IDSeq ID      { strcat ($1->varname, " "); strcat ($1->varname, $2->varname); $$ = $1; }
-                | ID            { $1->nodetype = STRING_NODE; $$ = $1; } ; */
 
-/* AllocStmt       : ID EQL ALLOC '(' ')' ENDSTMT      { $$ = makeAllocNode (); } */
-FreeStmt        : FREE '(' ID ')' ENDSTMT           { $$ = makeFreeNode ($3); }
-/* InitStmt        : INIT '(' ')' ENDSTMT              { $$ = makeInitNode (); } */
+FreeStmt        : FREE '(' ID ')' ';'               { $$ = makeFreeNode ($3); }
 
-/* NewStmt         : ID EQL NEW '(' ID ')' ENDSTMT     { $$ = makeNewNode ($1, $5); } */
 DeleteStmt      : DELETE '(' ID ')'                 { $$ = makeDeleteNode ($3); }
 
-AssgnStmt       : Identifier EQL Expr ENDSTMT       { $$ = makeOperatorNode ("=", $1, $3); } ;
+AssgnStmt       : Identifier EQL Expr ';'           { $$ = makeOperatorNode ("=", $1, $3); } ;
 
-BreakStmt       : BREAK ENDSTMT         { $$ = makeBreakNode (); };
-ContinueStmt    : CONTINUE ENDSTMT      { $$ = makeContinueNode (); };
+BreakStmt       : BREAK ';'             { $$ = makeBreakNode (); };
+ContinueStmt    : CONTINUE ';'          { $$ = makeContinueNode (); };
 
-IfStmt          : IF '(' Expr ')' THEN StmtList ELSE StmtList ENDIF ENDSTMT     { $$ = makeIfElseNode ($3, $6, $8); }
-                | IF '(' Expr ')' THEN StmtList ENDIF ENDSTMT                   { $$ = makeIfNode ($3, $6); } ;
+IfStmt          : IF '(' Expr ')' THEN StmtList ELSE StmtList ENDIF ';'         { $$ = makeIfElseNode ($3, $6, $8); }
+                | IF '(' Expr ')' THEN StmtList ENDIF ';'                       { $$ = makeIfNode ($3, $6); } ;
 
-WhileStmt       : WHILE '(' Expr ')' DO StmtList ENDWHILE ENDSTMT               { $$ = makeWhileNode ($3, $6); } ;
+WhileStmt       : WHILE '(' Expr ')' DO StmtList ENDWHILE ';'                   { $$ = makeWhileNode ($3, $6); } ;
 
-ReturnStmt      : RETURN Expr ENDSTMT    { $$ = makeReturnNode ($2); } ;
+ReturnStmt      : RETURN Expr ';'        { $$ = makeReturnNode ($2); } ;
 
 Expr    : '(' Expr ')'          { $$ = $2; }
         | Expr ADD Expr         { $$ = makeOperatorNode ("+", $1, $3); }

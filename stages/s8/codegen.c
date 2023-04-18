@@ -16,7 +16,7 @@ int locationGenerator (FILE* outfile, TreeNode* node) {
                 fprintf (outfile, "MOV R%d, [R%d]\n", reg, reg);
         }
         else                    // global variable
-            fprintf (outfile, "MOV R%d, %d\n", reg, getVariableLocation (node->varname));
+            fprintf (outfile, "MOV R%d, %d\n", reg, getGVariableLocation (node->varname));
 
         // field location generator
         TreeNode* current = node->left;
@@ -29,16 +29,19 @@ int locationGenerator (FILE* outfile, TreeNode* node) {
         return reg;
     }
     
-    else if (node->nodetype == ARRAY_NODE && node->left->nodetype == VALUE_NODE) {
-        fprintf (outfile, "MOV R%d, %d\n", reg, getVariableLocation (node->varname) + node->varvalue);
+    int loc = getLVariableLocation (node->varname); 
+    loc = loc == 0 ? getGVariableLocation (node->varname) : loc;
+
+    if (node->nodetype == ARRAY_NODE && node->left->nodetype == VALUE_NODE) {
+        fprintf (outfile, "MOV R%d, %d\n", reg, loc + node->varvalue);
         return reg;
     }
 
     freeReg (reg);
     
-    // else if (node->nodetype == ARRAY_NODE && node->left->nodetype == EXPRESSION)
+    // if (node->nodetype == ARRAY_NODE && node->left->nodetype == EXPRESSION)
     reg = codeGenerator (outfile, node->left);
-    fprintf (outfile, "ADD R%d, %d\n", reg, getVariableLocation (node->varname));
+    fprintf (outfile, "ADD R%d, %d\n", reg, loc);
 
     return reg;
 }
@@ -116,7 +119,6 @@ int libraryCallGenerator (FILE *outfile, int call, int reg1) {
     fprintf (outfile, "PUSH R0\nPUSH R0\nCALL 0\n");
 
     if (call == ALLOC_NODE || call == INIT_NODE) {
-        // reg1 = regRet;
         registers [regRet] = REG_BUSY;
         fprintf (outfile, "POP R%d\n", regRet);
     }
@@ -209,7 +211,6 @@ int functionGenerator (FILE *outfile, TreeNode* node) {
             pushArguements (outfile, node->right);
 
             int reg2 = locationGenerator (outfile, node->left);
-            // fprintf (outfile, "MOV R%d, [R%d]\n", reg2, reg2);
             fprintf (outfile, "PUSH R%d\n", reg2);
             freeReg (reg2);
         }
@@ -217,12 +218,12 @@ int functionGenerator (FILE *outfile, TreeNode* node) {
 
         fprintf (outfile, "PUSH R0\n");
 
-        if (node->varvalue == FUNC_CALL) fprintf (outfile, "CALL FUNC%d\n", getGVariable(node->varname)->funcLabel);
+        if (node->varvalue == FUNC_CALL) 
+            fprintf (outfile, "CALL FUNC%d\n", getGVariable(node->varname)->funcLabel);
         else {
             int methodIndex = getMethodFromClass (node->varname, node->classtype)->methodIndex;
             
             int regFuncCall = locationGenerator (outfile, node->left);
-            // if (node->left->nodetype == SELF_NODE) fprintf (outfile, "MOV R%d, [R%d]\n", regFuncCall, regFuncCall);
             
             fprintf (outfile, "ADD R%d, 1\n", regFuncCall);
             fprintf (outfile, "MOV R%d, [R%d]\n", regFuncCall, regFuncCall);
@@ -431,9 +432,7 @@ int codeGenerator (FILE *outfile, TreeNode* node) {
     }
 
     if (node->nodetype == CLASS_NODE) {
-        int reg = codeGenerator (outfile, node->left);
-        // int reg2 = getVariableLocation ();
-        return reg;
+        return codeGenerator (outfile, node->left);
     }
 
     return -1;

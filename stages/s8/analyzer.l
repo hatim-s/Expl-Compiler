@@ -52,14 +52,14 @@
 "&&"        { return AND; }
 "||"        { return OR; }
 "~"         { return NOT; }
-";"         { return ENDSTMT; }
+";"         { return *yytext; }
 ","         { return *yytext; }
 "."         { return *yytext; }
 
 "self"                  { yylval.node = makeSelfNode ();                return SELF; }
 [0-9]+                  { yylval.node = makeNumberNode (atoi(yytext));  return NUM; }
 [a-zA-Z][a-zA-Z0-9_]*   { yylval.node = makeVariableNode (yytext);      return ID; }
-[\"][a-zA-Z0-9 ]*[\"]    { yylval.node = makeStringNode (yytext);        return SID; }
+[\"][a-zA-Z0-9 ]*[\"]   { yylval.node = makeStringNode (yytext);        return SID; }
 
 
 [()\[\]]    { return *yytext; }

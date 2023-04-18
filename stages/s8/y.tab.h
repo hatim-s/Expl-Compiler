@@ -54,55 +54,54 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    ENDSTMT = 258,                 /* ENDSTMT  */
-    READ = 259,                    /* READ  */
-    WRITE = 260,                   /* WRITE  */
-    ALLOC = 261,                   /* ALLOC  */
-    FREE = 262,                    /* FREE  */
-    INIT = 263,                    /* INIT  */
-    NEW = 264,                     /* NEW  */
-    DELETE = 265,                  /* DELETE  */
-    NUM = 266,                     /* NUM  */
-    ID = 267,                      /* ID  */
-    SID = 268,                     /* SID  */
-    INT = 269,                     /* INT  */
-    STR = 270,                     /* STR  */
-    NULLL = 271,                   /* NULLL  */
-    START = 272,                   /* START  */
-    END = 273,                     /* END  */
-    DECL = 274,                    /* DECL  */
-    ENDDECL = 275,                 /* ENDDECL  */
-    TYPE = 276,                    /* TYPE  */
-    ENDTYPE = 277,                 /* ENDTYPE  */
-    CLASS = 278,                   /* CLASS  */
-    ENDCLASS = 279,                /* ENDCLASS  */
-    MAIN = 280,                    /* MAIN  */
-    RETURN = 281,                  /* RETURN  */
-    EXTENDS = 282,                 /* EXTENDS  */
-    SELF = 283,                    /* SELF  */
-    ADD = 284,                     /* ADD  */
-    SUB = 285,                     /* SUB  */
-    MUL = 286,                     /* MUL  */
-    DIV = 287,                     /* DIV  */
-    EQL = 288,                     /* EQL  */
-    LT = 289,                      /* LT  */
-    GT = 290,                      /* GT  */
-    EQ = 291,                      /* EQ  */
-    GE = 292,                      /* GE  */
-    LE = 293,                      /* LE  */
-    NE = 294,                      /* NE  */
-    AND = 295,                     /* AND  */
-    OR = 296,                      /* OR  */
-    NOT = 297,                     /* NOT  */
-    IF = 298,                      /* IF  */
-    THEN = 299,                    /* THEN  */
-    ELSE = 300,                    /* ELSE  */
-    ENDIF = 301,                   /* ENDIF  */
-    WHILE = 302,                   /* WHILE  */
-    DO = 303,                      /* DO  */
-    ENDWHILE = 304,                /* ENDWHILE  */
-    BREAK = 305,                   /* BREAK  */
-    CONTINUE = 306                 /* CONTINUE  */
+    NUM = 258,                     /* NUM  */
+    ID = 259,                      /* ID  */
+    SID = 260,                     /* SID  */
+    SELF = 261,                    /* SELF  */
+    INT = 262,                     /* INT  */
+    STR = 263,                     /* STR  */
+    NULLL = 264,                   /* NULLL  */
+    MAIN = 265,                    /* MAIN  */
+    RETURN = 266,                  /* RETURN  */
+    EXTENDS = 267,                 /* EXTENDS  */
+    READ = 268,                    /* READ  */
+    WRITE = 269,                   /* WRITE  */
+    ALLOC = 270,                   /* ALLOC  */
+    FREE = 271,                    /* FREE  */
+    INIT = 272,                    /* INIT  */
+    NEW = 273,                     /* NEW  */
+    DELETE = 274,                  /* DELETE  */
+    START = 275,                   /* START  */
+    END = 276,                     /* END  */
+    DECL = 277,                    /* DECL  */
+    ENDDECL = 278,                 /* ENDDECL  */
+    TYPE = 279,                    /* TYPE  */
+    ENDTYPE = 280,                 /* ENDTYPE  */
+    CLASS = 281,                   /* CLASS  */
+    ENDCLASS = 282,                /* ENDCLASS  */
+    ADD = 283,                     /* ADD  */
+    SUB = 284,                     /* SUB  */
+    MUL = 285,                     /* MUL  */
+    DIV = 286,                     /* DIV  */
+    EQL = 287,                     /* EQL  */
+    LT = 288,                      /* LT  */
+    GT = 289,                      /* GT  */
+    EQ = 290,                      /* EQ  */
+    GE = 291,                      /* GE  */
+    LE = 292,                      /* LE  */
+    NE = 293,                      /* NE  */
+    AND = 294,                     /* AND  */
+    OR = 295,                      /* OR  */
+    NOT = 296,                     /* NOT  */
+    IF = 297,                      /* IF  */
+    THEN = 298,                    /* THEN  */
+    ELSE = 299,                    /* ELSE  */
+    ENDIF = 300,                   /* ENDIF  */
+    WHILE = 301,                   /* WHILE  */
+    DO = 302,                      /* DO  */
+    ENDWHILE = 303,                /* ENDWHILE  */
+    BREAK = 304,                   /* BREAK  */
+    CONTINUE = 305                 /* CONTINUE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -111,65 +110,64 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define ENDSTMT 258
-#define READ 259
-#define WRITE 260
-#define ALLOC 261
-#define FREE 262
-#define INIT 263
-#define NEW 264
-#define DELETE 265
-#define NUM 266
-#define ID 267
-#define SID 268
-#define INT 269
-#define STR 270
-#define NULLL 271
-#define START 272
-#define END 273
-#define DECL 274
-#define ENDDECL 275
-#define TYPE 276
-#define ENDTYPE 277
-#define CLASS 278
-#define ENDCLASS 279
-#define MAIN 280
-#define RETURN 281
-#define EXTENDS 282
-#define SELF 283
-#define ADD 284
-#define SUB 285
-#define MUL 286
-#define DIV 287
-#define EQL 288
-#define LT 289
-#define GT 290
-#define EQ 291
-#define GE 292
-#define LE 293
-#define NE 294
-#define AND 295
-#define OR 296
-#define NOT 297
-#define IF 298
-#define THEN 299
-#define ELSE 300
-#define ENDIF 301
-#define WHILE 302
-#define DO 303
-#define ENDWHILE 304
-#define BREAK 305
-#define CONTINUE 306
+#define NUM 258
+#define ID 259
+#define SID 260
+#define SELF 261
+#define INT 262
+#define STR 263
+#define NULLL 264
+#define MAIN 265
+#define RETURN 266
+#define EXTENDS 267
+#define READ 268
+#define WRITE 269
+#define ALLOC 270
+#define FREE 271
+#define INIT 272
+#define NEW 273
+#define DELETE 274
+#define START 275
+#define END 276
+#define DECL 277
+#define ENDDECL 278
+#define TYPE 279
+#define ENDTYPE 280
+#define CLASS 281
+#define ENDCLASS 282
+#define ADD 283
+#define SUB 284
+#define MUL 285
+#define DIV 286
+#define EQL 287
+#define LT 288
+#define GT 289
+#define EQ 290
+#define GE 291
+#define LE 292
+#define NE 293
+#define AND 294
+#define OR 295
+#define NOT 296
+#define IF 297
+#define THEN 298
+#define ELSE 299
+#define ENDIF 300
+#define WHILE 301
+#define DO 302
+#define ENDWHILE 303
+#define BREAK 304
+#define CONTINUE 305
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "parser.y"
+#line 16 "parser.y"
 
     struct TreeNode *node;
 
-#line 173 "y.tab.h"
+#line 171 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

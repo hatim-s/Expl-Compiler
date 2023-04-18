@@ -1,0 +1,42 @@
+Program ::= GDeclBlock FdefBlock MainBlock
+        | GdeclBlock MainBlock
+        | MainBlock
+
+GdeclBlock ::= DECL GdeclList ENDDECL | DECL ENDDECL
+
+GdeclList ::= GDeclList GDecl | GDecl
+GDecl ::= Type GidList ;
+
+GidList ::= GidList , Gid | Gid
+
+Gid ::= ID
+     | ID\[NUM\]
+     | ID(ParamList)
+--------------------------------------------------------------------------------------
+FDefBlock ::= FdefBlock Fdef | Fdef
+
+Fdef ::=Type ID ( ParamList ) { LdeclBlock Body }
+
+ParamList ::= ParamList , Param | Param
+        |   /\*param can be empty\*/
+
+Param ::= Type ID
+
+Type ::= INT | STR
+-----------------------------------------------------------------------------------------
+
+LdeclBlock ::= DECL LDecList ENDDECL | DECL ENDDECL
+
+LDecList ::= LDecList LDecl | LDecl
+
+LDecl ::= Type IdList ;
+
+IdList ::= IdList, ID | ID
+
+Type ::= INT | STR
+
+Since a function call is treated as an expression (whose value is the return value of the function), the following rules must be added:
+
+E ::= ID () | ID(ArgList)
+
+ArgList ::= ArgList, E | E

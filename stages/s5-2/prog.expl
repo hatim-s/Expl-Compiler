@@ -1,0 +1,36 @@
+decl
+ int fun(int x, int y);
+enddecl
+
+int fun(int x, int y)
+{
+    decl
+        int a;
+    enddecl
+
+    begin
+        if(y == 0) then
+            a = x;
+        else
+            a = fun(fun(x-1, y-1), 0);
+        endif;
+
+        return a;
+    end
+}
+
+int main()
+{
+ decl
+  int b,c,d;
+ enddecl
+
+ begin
+  read(b);
+  read(c);
+  d = fun(b,c);
+  write(d);
+
+  return 0;
+ end
+}

@@ -1,0 +1,18 @@
+decl
+   int n,arr[50],i,j,dup;
+enddecl;
+begin
+    i = 0;
+    while (i < 5) do
+        read (arr[i]);
+        i = i + 1;
+    endwhile;
+
+    arr = 1;
+    
+    i = 0;
+    while (i < 5) do
+        print (arr[i]);
+        i = i + 1;
+    endwhile;
+end;

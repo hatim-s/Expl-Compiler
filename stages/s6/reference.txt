@@ -1,0 +1,3 @@
+1. Implement NULL nodes (done)
+2. Complete Free() function call properly
+3. Correct stack allocation for local variables while defining functions

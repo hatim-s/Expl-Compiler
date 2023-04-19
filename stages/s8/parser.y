@@ -25,11 +25,9 @@
 
 %type <node> ID NUM SELF SID
 
-%type <node> Program TypeDeclBlock GDeclBlock FuncDefBlock MainBlock 
-%type <node> TypeDeclBlockInit TypeDeclList TypeStmt TypeName FieldDeclList FieldDecl Type
-%type <node> ClassDeclBlock ClassDeclList ClassDecl ClassName MethodDeclList MethodDefList MethodDecl MethodDef MemberDeclList MemberDecl
+%type <node> Type FieldDecl MethodDecl MethodDef MemberDecl
 %type <node> GDeclList GDecl GVarList GIdentifierDecl ParamList Param ParamBlock
-%type <node> FuncBody LDeclBlock LDeclList LDecl LVarList ArgsList FuncDef
+%type <node> LDeclList LDecl LVarList ArgsList FuncDef FuncBody
 %type <node> StmtList Stmt InStmt OutStmt AssgnStmt FreeStmt DeleteStmt
 %type <node> IfStmt WhileStmt BreakStmt ContinueStmt ReturnStmt
 %type <node> Expr Identifier Field FieldFunc
@@ -245,8 +243,8 @@ ParamList       : ParamList ',' Param   { TreeNode* current = $1; while (current
 
 Param           : Type ID   { $$ = makeParameterNode ($1->datatype, $2->varname); } ;
 
-LDeclBlock      : DECL LDeclList ENDDECL     { declareLVariables ($2); $$ = $2; }
-                | DECL ENDDECL               { $$ = NULL; } ;
+LDeclBlock      : DECL LDeclList ENDDECL     { declareLVariables ($2); }
+                | DECL ENDDECL               { } ;
 
 LDeclList       : LDeclList LDecl   { TreeNode *current = $1; while (current->left) current = current->left; current->left = $2; $$ = $1; }
                 | LDecl             { $$ = $1; } ;
@@ -292,7 +290,6 @@ MainBlock   : INT MAIN '(' ')' '{' LDeclBlock FuncBody '}'
 
                 codeGenerator (outfile, $6);
                 fprintf (outfile, "INT 10\n");
-                
                 fclose (outfile);
             };
 
@@ -315,12 +312,10 @@ InStmt          : READ '(' Identifier ')' ';'           { $$ = makeReadNode ($3)
 OutStmt         : WRITE '(' Expr ')' ';'                { $$ = makeWriteNode ($3); }
                 | WRITE '(' SID ')' ';'                 { $$ = makeWriteNode ($3); } ;
 
+FreeStmt        : FREE '(' ID ')' ';'       { $$ = makeFreeNode ($3); }
+DeleteStmt      : DELETE '(' ID ')'         { $$ = makeDeleteNode ($3); }
 
-FreeStmt        : FREE '(' ID ')' ';'               { $$ = makeFreeNode ($3); }
-
-DeleteStmt      : DELETE '(' ID ')'                 { $$ = makeDeleteNode ($3); }
-
-AssgnStmt       : Identifier EQL Expr ';'           { $$ = makeOperatorNode ("=", $1, $3); } ;
+AssgnStmt       : Identifier EQL Expr ';'   { $$ = makeOperatorNode ("=", $1, $3); } ;
 
 BreakStmt       : BREAK ';'             { $$ = makeBreakNode (); };
 ContinueStmt    : CONTINUE ';'          { $$ = makeContinueNode (); };
@@ -345,15 +340,15 @@ Expr    : '(' Expr ')'          { $$ = $2; }
         | Expr NE Expr          { $$ = makeOperatorNode ("!=", $1, $3); }
         | Expr AND Expr         { $$ = makeOperatorNode ("&&", $1, $3); }
         | Expr OR Expr          { $$ = makeOperatorNode ("||", $1, $3); }
-        | Expr NOT Expr         { $$ = makeOperatorNode ("~", $1, $3); }
+        | Expr NOT Expr         { $$ = makeOperatorNode ("~",  $1, $3); }
         | Identifier            { $$ = $1; } 
         | FieldFunc             { $$ = $1; }
         | ID '(' ArgsList ')'   { $1->datatype = getVariableType ($1->varname); $$ = makeFunctionCallNode ($1->varname, $3); }
         | NUM                   { $1->datatype = getTypeNode ("INT"); $$ = $1; } 
         | SID                   { $$ = $1; }
-        | NULLL                 { $$ = makeNullNode (); } 
+        | NULLL                 { $$ = makeNullNode  (); } 
         | ALLOC '(' ')'         { $$ = makeAllocNode (); }
-        | INIT '(' ')'          { $$ = makeInitNode (); }
+        | INIT '(' ')'          { $$ = makeInitNode  (); }
         | NEW '(' ID ')'        { $$ = makeNewNode ($3); }
         ;
 

@@ -2,7 +2,6 @@
 #define class_header
 
 #include "symtab.h"
-// #include "class_func.h"
 
 ParameterList* copyParameterNode (ParameterList *node) {
     if (!node) return NULL;

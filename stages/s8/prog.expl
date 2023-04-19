@@ -10,7 +10,7 @@ class
 					self.temp = self.f0 (x-1);
 				endif;
 
-				write("In class A f0");
+				write("Class A f0 hi");
 
 				return 1;
             end

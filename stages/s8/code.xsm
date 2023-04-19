@@ -45,7 +45,7 @@ MOV R2, [R2]
 ADD R2, 1
 MOV [R2], R1
 JMP 2134
-MOV R1, "In class A f0"
+MOV R1, "Class A f0 hi"
 PUSH R1
 MOV R0, "Write"
 PUSH R0

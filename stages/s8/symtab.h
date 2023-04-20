@@ -9,6 +9,16 @@ LSymTable t;
 
 int lineNo;
 
+typedef
+    struct argTypes {
+        TypeTable *type;
+        struct argTypes *next;
+    } 
+argTypes;
+
+argTypes* ARG = NULL;
+argTypes* ArgCurrent = NULL;
+
 int getNewLocation (int size) { 
     static int loc = 4096; 
     int temp = loc; loc += size; 
@@ -63,6 +73,60 @@ bool matchParameters (ParameterList* symTableParams, TreeNode* funcParams) {
     }
 
     return true;
+}
+
+void getArguementsList (TreeNode *funcArgs) {
+    if (funcArgs == NULL) return;
+
+    if (funcArgs->nodetype == CONNECTOR) {
+        getArguementsList (funcArgs->left);
+        getArguementsList (funcArgs->right);
+
+        return;
+    }
+
+    if (ARG == NULL) {
+        // printf ("ARG List head init\n");
+        ArgCurrent = (argTypes*) malloc (sizeof (argTypes));
+        ArgCurrent->type = funcArgs->datatype;
+        ArgCurrent->next = NULL;
+        ARG = ArgCurrent; 
+
+        return;
+    }
+
+    ArgCurrent->next = (argTypes*) malloc (sizeof (argTypes));
+    ArgCurrent->next->type = funcArgs->datatype;
+    ArgCurrent->next->next = NULL;
+    ArgCurrent = ArgCurrent->next;
+
+    return;
+}
+
+bool matchArguements (ParameterList* symTableParams, TreeNode* funcArgs) {
+    ARG = NULL, ArgCurrent = NULL;
+    // printf ("matchArguements called\n");
+
+    getArguementsList (funcArgs);
+
+    ParameterList* current1 = symTableParams;
+    argTypes* current2 = ARG;
+
+    bool flag = true;
+
+    while (current1) {
+        if (current1->type != current2->type) {
+            flag = false;
+            break;
+        }
+        current1 = current1->next;
+        current2 = current2->next;
+    }
+
+    if (current2 != NULL) flag = false;
+
+    // printf ("returned true\n");
+    return flag;
 }
 
 // ----------------------------------------------------- Parameter List from Tree Creation ----------------------------------------------------

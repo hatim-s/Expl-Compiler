@@ -429,3 +429,74 @@ int main() {
 		return 1;
     end
 }
+
+// ------------------------------------------------------------------------------
+
+class
+    A {
+        decl
+			int temp;
+            int f0(int x);
+        enddecl
+        int f0 (int x) {
+            begin
+				if (x > 0) then
+					self.temp = self.f0 (x-1);
+				endif;
+
+				write("Class A f0 hi");
+
+				return 1;
+            end
+        }
+    }
+    B {
+        decl
+			int temp;
+			A a_obj;
+			int f1 ();
+        enddecl
+        int f1 () {
+            begin
+                write("In class B f1");
+				self.a_obj = new (A);
+				self.temp = self.a_obj.f0(3);
+                return 1;
+            end
+        }
+    }
+	C {
+        decl
+			int temp;
+			B b_obj;
+			int f2 ();
+        enddecl
+        int f2 () {
+            begin
+                write("In class C f2");
+				self.b_obj = new (B);
+				self.temp = self.b_obj.f1();
+                return 1;
+            end
+        }
+    }
+endclass
+
+decl
+    C obj;
+enddecl
+
+int main() {
+    decl
+		int temp;
+    enddecl
+    
+	begin
+        temp = initialize();
+		
+		obj = new (C);
+		temp = obj.f2 ();
+
+		return 1;
+    end
+}

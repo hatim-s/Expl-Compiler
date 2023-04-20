@@ -51,7 +51,8 @@ Program : TypeDeclBlock ClassDeclBlock GDeclBlock FuncDefBlock MainBlock    {}
 
 /* -------------------------------------------------------------------------------------------------------------------------------------- */
 
-TypeDeclBlock       : TypeDeclBlockInit TypeDeclList ENDTYPE {} ;
+TypeDeclBlock       : TypeDeclBlockInit TypeDeclList ENDTYPE    {} 
+                    | TypeDeclBlockInit ENDTYPE                 {};
 
 TypeDeclBlockInit   : TYPE  { initializeTypeTable (); } ;
 
@@ -343,7 +344,18 @@ Expr    : '(' Expr ')'          { $$ = $2; }
         | Expr NOT Expr         { $$ = makeOperatorNode ("~",  $1, $3); }
         | Identifier            { $$ = $1; } 
         | FieldFunc             { $$ = $1; }
-        | ID '(' ArgsList ')'   { $1->datatype = getVariableType ($1->varname); $$ = makeFunctionCallNode ($1->varname, $3); }
+        | ID '(' ArgsList ')'   
+        { 
+            $1->datatype = getVariableType ($1->varname);
+
+            if (matchArguements (getGVariable($1->varname)->param, $3) == false) {
+                printf ("ERROR : invalid arguement type\n");
+                printf ("Line : %d\n", yylineno);
+                exit (1);
+            } 
+            
+            $$ = makeFunctionCallNode ($1->varname, $3); 
+        }
         | NUM                   { $1->datatype = getTypeNode ("INT"); $$ = $1; } 
         | SID                   { $$ = $1; }
         | NULLL                 { $$ = makeNullNode  (); } 
@@ -414,6 +426,11 @@ FieldFunc   : ID '.' ID '(' ArgsList ')'
                     printf ("Line : %d\n", yylineno); exit (1); 
                 }
 
+                if (matchArguements (getMethodFromClass ($3->varname, $1->classtype)->param, $5) == false) {
+                    printf ("ERROR : invalid arguement type\n");
+                    printf ("Line : %d\n", yylineno); exit (1);
+                }
+
                 $$ = makeMethodCallNode ($3->varname, $1, $5); 
                 $$->classtype = $1->classtype; $$->datatype = getMethodFromClass ($3->varname, $1->classtype)->type;
             }
@@ -423,6 +440,11 @@ FieldFunc   : ID '.' ID '(' ArgsList ')'
                     printf ("ERROR : undefined reference to 'self'\n"); 
                     printf ("Line : %d\n", yylineno);
                     exit (1); 
+                }
+
+                if (matchArguements (getMethod ($3->varname)->param, $5) == false) {
+                    printf ("ERROR : invalid arguement type\n");
+                    printf ("Line : %d\n", yylineno); exit (1);
                 }
 
                 $$ = makeMethodCallNode ($3->varname, $1, $5); 
@@ -444,6 +466,11 @@ FieldFunc   : ID '.' ID '(' ArgsList ')'
                     printf ("Line : %d\n", yylineno); exit (1); 
                 }
                 
+                if (matchArguements (getMethodFromClass ($5->varname, $1->classtype)->param, $7) == false) {
+                    printf ("ERROR : invalid arguement type\n");
+                    printf ("Line : %d\n", yylineno); exit (1);
+                }
+
                 $$ = makeMethodCallNode ($5->varname, $1, $7);
                 $$->classtype = $1->classtype; $$->datatype = getMethodFromClass ($5->varname, $1->classtype)->type;
             } 

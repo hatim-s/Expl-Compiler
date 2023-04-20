@@ -11,7 +11,7 @@ bool compareTypes (TreeNode* left, TreeNode* right) {
 
     if (ltype == rtype) return true;
     if (ltype != getTypeNode ("INT") && ltype != getTypeNode ("STR") && rtype == getTypeNode ("NULL")) return true;
-    // if (ltype != getTypeNode ("INT") && ltype != getTypeNode ("STR") && right->nodetype == HEAP_NODE) return true;
+    if (right->nodetype == HEAP_NODE) return true;
 
     if (lctype != NULL && rctype != NULL) {
         ClassTable *current = rctype;
@@ -44,7 +44,8 @@ TreeNode* makeConnectorNode (TreeNode* l, TreeNode* r) {
 
 TreeNode* makeOperatorNode (char* c,TreeNode *l,TreeNode *r) {
     if (compareTypes (l, r) == false) {
-        printf ("Error: type mismatch\n");
+        printf ("Error : type mismatch\n");
+        // exit (1);
         printf ("operator: %s\nleft: %s, %d, %s\nright: %s, %d, %s\n", 
                 c, l->varname, l->nodetype, l->datatype->name, r->varname, r->nodetype, r->datatype->name);
         
